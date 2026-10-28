@@ -5,81 +5,94 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="手稿显影">
-<meta name="theme-color" content="#ECEFF0">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>手稿显影</title>
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
-/* Layout: one narrow column like a darkroom tray — the developed page is the hero, controls sit below it. */
+/* iOS system look: grouped background, inset groups, segmented controls, switches. Colors are UIKit system colors. */
 :root{
-  --bg:#ECEFF0; --surface:#F7F8F7; --fg:#1D2328; --muted:#646E77; --rule:#D3D9DC;
-  --accent:#A9672A; --accent-fg:#FFFFFF; --accent-soft:#F1E3D2; --shadow:rgba(40,46,52,.16);
-  --f-display:"Noto Serif SC","Songti SC","STSong",serif;
-  --f-body:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-  --f-num:ui-monospace,"SF Mono",Menlo,monospace;
+  --bg:#F2F2F7; --surface:#FFFFFF; --fg:#000000; --muted:#6C6C70; --sep:#C6C6C8;
+  --accent:#007AFF; --accent-fg:#FFFFFF; --fill:rgba(118,118,128,.12); --seg-on:#FFFFFF;
+  --sw-off:#E9E9EA; --sw-on:#34C759; --ring:rgba(0,0,0,.15); --toast:rgba(30,30,32,.88); --toast-fg:#FFFFFF;
+  --f-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#13171B; --surface:#1B2126; --fg:#E8E4DC; --muted:#98A1A9; --rule:#2B333A;
-  --accent:#E2A25B; --accent-fg:#1B1309; --accent-soft:#3A2C1E; --shadow:rgba(0,0,0,.45); color-scheme:dark}}
+  --bg:#000000; --surface:#1C1C1E; --fg:#FFFFFF; --muted:#98989F; --sep:#38383A;
+  --accent:#0A84FF; --fill:rgba(118,118,128,.24); --seg-on:#636366;
+  --sw-off:#39393D; --sw-on:#30D158; --ring:rgba(255,255,255,.4); --toast:rgba(72,72,74,.92); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#13171B; --surface:#1B2126; --fg:#E8E4DC; --muted:#98A1A9; --rule:#2B333A;
-  --accent:#E2A25B; --accent-fg:#1B1309; --accent-soft:#3A2C1E; --shadow:rgba(0,0,0,.45); color-scheme:dark}
+  --bg:#000000; --surface:#1C1C1E; --fg:#FFFFFF; --muted:#98989F; --sep:#38383A;
+  --accent:#0A84FF; --fill:rgba(118,118,128,.24); --seg-on:#636366;
+  --sw-off:#39393D; --sw-on:#30D158; --ring:rgba(255,255,255,.4); --toast:rgba(72,72,74,.92); color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
-.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-h1{font-family:var(--f-display);font-weight:600;font-size:30px;letter-spacing:.08em;margin:0;line-height:1.2}
-.tag{color:var(--muted);font-size:13px;letter-spacing:.04em}
-figure{margin:0;display:flex;flex-direction:column;gap:10px}
-.stage{position:relative;border-radius:3px;overflow:hidden;box-shadow:0 1px 2px var(--shadow),0 14px 34px -12px var(--shadow);background:var(--surface)}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.4;-webkit-text-size-adjust:100%;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 40px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header{padding-top:8px}
+h1{font-size:34px;line-height:41px;font-weight:700;margin:0}
+.tag{margin:2px 0 0;color:var(--muted);font-size:15px;line-height:20px}
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.stage{position:relative;border-radius:12px;overflow:hidden;background:var(--surface)}
 .stage img{display:block;width:100%;height:auto;-webkit-touch-callout:default}
-.stage .busy{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:color-mix(in srgb,var(--bg) 55%,transparent);font-family:var(--f-display);letter-spacing:.3em;font-size:17px}
-figcaption{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;flex-wrap:wrap}
-.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{font:inherit;color:inherit;cursor:pointer}
-.btn{border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:13px 12px;font-size:15px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;text-align:center}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
-.btn:focus-visible,.seg button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btn:disabled{opacity:.45;cursor:default}
-.btn svg{width:19px;height:19px;flex:none}
-.panel{display:flex;flex-direction:column;gap:18px;padding-block:4px}
-.row{display:flex;flex-direction:column;gap:8px}
-.label{font-size:12px;color:var(--muted);letter-spacing:.12em}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{flex:1 1 0;min-width:0;border:1px solid var(--rule);background:transparent;border-radius:8px;padding:9px 8px;font-size:14px;
-  display:flex;align-items:center;justify-content:center;gap:7px}
-.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
-.seg.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
-.sw{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
-.toggles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tg{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--rule);border-radius:8px;padding:9px 12px;font-size:14px}
-.tg input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);margin:0}
-.daterow{display:flex;align-items:center;gap:10px;font-size:14px}
-.daterow input{font:inherit;font-family:var(--f-num);font-size:14px;background:var(--surface);color:var(--fg);border:1px solid var(--rule);border-radius:8px;padding:7px 10px;min-width:0}
-input[type=range]{width:100%;accent-color:var(--accent)}
-.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
-.hint{font-size:13px;color:var(--muted);margin:0}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);
-  padding:10px 16px;border-radius:999px;font-size:14px;max-width:calc(100% - 32px);text-align:center;z-index:30}
-hr{border:0;border-top:1px solid var(--rule);margin:0}
+.stage .busy{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:color-mix(in srgb,var(--surface) 65%,transparent);color:var(--muted);font-size:15px}
+.busy::before{content:"";width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent}
+@keyframes spin{to{transform:rotate(360deg)}}
+figcaption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px;line-height:18px;padding-inline:16px}
+.hint{margin:-16px 0 0;padding-inline:16px;color:var(--muted);font-size:13px;line-height:18px}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{border:0;background:var(--fill);color:var(--accent);border-radius:12px;padding:0 12px;min-height:50px;font-size:17px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.btn.primary{background:var(--accent);color:var(--accent-fg)}
+.btn:active{opacity:.7}
+.btn:disabled{opacity:.4;cursor:default}
+.btn svg{width:20px;height:20px;flex:none}
+.btn:focus-visible,.seg button:focus-visible,.cell input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* section = small grey header over a control, like a grouped table section */
+.sec{display:flex;flex-direction:column;gap:6px}
+.label{font-size:13px;line-height:18px;color:var(--muted);padding-inline:16px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px;padding:2px;border-radius:9px;background:var(--fill)}
+.seg.grid3{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg button{border:0;background:transparent;border-radius:7px;min-height:32px;padding:4px 6px;font-size:13px;line-height:18px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--seg-on);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+.sw{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px var(--ring)}
+.group{background:var(--surface);border-radius:10px;overflow:hidden}
+.cell{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:6px 16px}
+.cell + .cell::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.cell.slider{flex-direction:column;align-items:stretch;gap:4px;padding:12px 16px 10px}
+input[type=range]{width:100%;margin:0;accent-color:var(--accent)}
+.scale{display:flex;justify-content:space-between;font-size:13px;line-height:18px;color:var(--muted)}
+.cell input[type=checkbox]{-webkit-appearance:none;appearance:none;position:relative;flex:none;margin:0;width:51px;height:31px;border-radius:16px;background:var(--sw-off);cursor:pointer}
+.cell input[type=checkbox]::before{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06)}
+.cell input[type=checkbox]:checked{background:var(--sw-on)}
+.cell input[type=checkbox]:checked::before{transform:translateX(20px)}
+.cell input[type=date]{font:inherit;color:var(--fg);background:var(--fill);border:0;border-radius:6px;padding:6px 11px;min-width:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--toast);color:var(--toast-fg);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);padding:12px 18px;border-radius:14px;font-size:15px;line-height:20px;max-width:calc(100% - 32px);text-align:center;z-index:30}
 /* corner editor sheet */
 .sheet{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;
   padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));gap:12px}
-.sheet h2{font-family:var(--f-display);font-weight:600;font-size:19px;margin:0;letter-spacing:.06em}
-.sheet p{margin:0;font-size:13px;color:var(--muted)}
+.sheet h2{font-size:17px;line-height:22px;font-weight:600;margin:0;text-align:center}
+.sheet p{margin:-8px 0 0;font-size:13px;line-height:18px;color:var(--muted);text-align:center}
 .ed{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;touch-action:none}
 .edbox{position:relative;line-height:0}
 .edbox img{max-width:100%;display:block;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:none}
 .edbox svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#poly{fill:color-mix(in srgb,var(--accent) 14%,transparent);stroke:var(--accent)}
 .hd{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;touch-action:none;display:flex;align-items:center;justify-content:center}
 .hd::after{content:"";width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .sheet .btnrow{grid-template-columns:1fr 1fr 1.4fr}
-@media (prefers-reduced-motion:no-preference){.stage img{transition:opacity .25s}}
+@media (prefers-reduced-motion:no-preference){
+  .stage img{transition:opacity .25s}
+  .busy::before{animation:spin .8s linear infinite}
+  .cell input[type=checkbox],.cell input[type=checkbox]::before{transition:background-color .2s,transform .2s}
+}
 </style>
 
 </head>
@@ -87,15 +100,15 @@ hr{border:0;border-top:1px solid var(--rule);margin:0}
 <div class="wrap">
   <header>
     <h1>手稿显影</h1>
-    <span class="tag">拍一页本子，留住光的样子</span>
+    <p class="tag">拍本子，自动拉正、提取笔迹、重新打光</p>
   </header>
 
   <figure>
     <div class="stage">
       <img id="out" alt="处理后的手写页面">
-      <div class="busy" id="busy" hidden>显影中</div>
+      <div class="busy" id="busy" hidden>处理中…</div>
     </div>
-    <figcaption><span id="cap">纸面预览 · 选一种光线，再拍一页试试</span><span id="dims"></span></figcaption>
+    <figcaption><span id="cap">空白纸预览，拍一页后换成你的笔记</span><span id="dims"></span></figcaption>
   </figure>
 
   <div class="btnrow">
@@ -107,41 +120,42 @@ hr{border:0;border-top:1px solid var(--rule);margin:0}
   <input type="file" id="fShoot" accept="image/*" capture="environment" hidden>
   <input type="file" id="fPick" accept="image/*" hidden>
 
-  <hr>
+  <section class="sec">
+    <span class="label">光线</span>
+    <div class="seg grid3" id="segStyle">
+      <button type="button" data-v="soft" aria-pressed="true">柔光暖纸</button>
+      <button type="button" data-v="winter" aria-pressed="false">冬日阳光</button>
+      <button type="button" data-v="window" aria-pressed="false">窗边光影</button>
+      <button type="button" data-v="leaf" aria-pressed="false">树影斑驳</button>
+      <button type="button" data-v="lamp" aria-pressed="false">台灯夜读</button>
+      <button type="button" data-v="morning" aria-pressed="false">清晨薄光</button>
+    </div>
+  </section>
 
-  <div class="panel">
-    <div class="row">
-      <span class="label">光线</span>
-      <div class="seg grid3" id="segStyle">
-        <button type="button" data-v="soft" aria-pressed="true">柔光暖纸</button>
-        <button type="button" data-v="winter" aria-pressed="false">冬日阳光</button>
-        <button type="button" data-v="window" aria-pressed="false">窗边光影</button>
-        <button type="button" data-v="leaf" aria-pressed="false">树影斑驳</button>
-        <button type="button" data-v="lamp" aria-pressed="false">台灯夜读</button>
-        <button type="button" data-v="morning" aria-pressed="false">清晨薄光</button>
+  <section class="sec">
+    <span class="label">墨色</span>
+    <div class="seg" id="segInk">
+      <button type="button" data-v="navy" aria-pressed="true"><span class="sw" style="background:#1A2E6C"></span>藏蓝</button>
+      <button type="button" data-v="black" aria-pressed="false"><span class="sw" style="background:#1E1E24"></span>墨黑</button>
+      <button type="button" data-v="orig" aria-pressed="false"><span class="sw" style="background:conic-gradient(#2a4aa8,#b23a3a,#2f7a4a,#2a4aa8)"></span>原色</button>
+    </div>
+  </section>
+
+  <section class="sec">
+    <label class="label" for="sens">笔迹识别</label>
+    <div class="group">
+      <div class="cell slider">
+        <input type="range" id="sens" min="-1" max="1" step="0.1" value="0">
+        <div class="scale"><span>只留清楚的字</span><span>浅色笔也保留</span></div>
       </div>
     </div>
-    <div class="row">
-      <span class="label">墨色</span>
-      <div class="seg" id="segInk">
-        <button type="button" data-v="navy" aria-pressed="true"><span class="sw" style="background:#1A2E6C"></span>藏蓝</button>
-        <button type="button" data-v="black" aria-pressed="false"><span class="sw" style="background:#1E1E24"></span>墨黑</button>
-        <button type="button" data-v="orig" aria-pressed="false"><span class="sw" style="background:conic-gradient(#2a4aa8,#b23a3a,#2f7a4a,#2a4aa8)"></span>原色</button>
-      </div>
-    </div>
-    <div class="row">
-      <label class="label" for="sens">笔迹识别</label>
-      <input type="range" id="sens" min="-1" max="1" step="0.1" value="0">
-      <div class="scale"><span>只留清楚的字</span><span>浅色笔也保留</span></div>
-    </div>
-    <div class="toggles">
-      <label class="tg" for="tLines">重绘横线<input type="checkbox" id="tLines" checked></label>
-      <label class="tg" for="tDate">日期角标<input type="checkbox" id="tDate" checked></label>
-    </div>
-    <div class="daterow" id="dateRow"><label for="dateIn">日期</label><input type="date" id="dateIn"></div>
+  </section>
+
+  <div class="group">
+    <label class="cell" for="tLines">重绘横线<input type="checkbox" id="tLines" checked></label>
+    <label class="cell" for="tDate">日期角标<input type="checkbox" id="tDate" checked></label>
+    <div class="cell" id="dateRow"><label for="dateIn">日期</label><input type="date" id="dateIn"></div>
   </div>
-
-  <hr>
 
   <div class="btnrow">
     <button class="btn primary" id="bSave" type="button">
@@ -154,8 +168,8 @@ hr{border:0;border-top:1px solid var(--rule);margin:0}
 
 <div class="sheet" id="sheet" hidden>
   <h2>对准纸张四角</h2>
-  <p>拖动四个圆点到本子这一页的四个角，歪的、斜的都会被拉正。</p>
-  <div class="ed" id="ed"><div class="edbox" id="edbox"><img id="edimg" alt="原始照片"><svg id="edsvg"><polygon id="poly" points="" fill="rgba(226,162,91,.14)" stroke="#E2A25B" stroke-width="2"/></svg></div></div>
+  <p>把四个圆点拖到这页纸的四个角，处理时会自动拉正。</p>
+  <div class="ed" id="ed"><div class="edbox" id="edbox"><img id="edimg" alt="原始照片"><svg id="edsvg"><polygon id="poly" points="" fill="rgba(0,122,255,.14)" stroke="#007AFF" stroke-width="2"/></svg></div></div>
   <div class="btnrow">
     <button class="btn" id="eCancel" type="button">取消</button>
     <button class="btn" id="eAuto" type="button">自动识别</button>
@@ -746,7 +760,7 @@ const Core = (() => {
       page = { an, w: wp.w, h: wp.h, lines: an.lines, alpha: Core.extract(an, opts.sens) };
       isSample = false;
       $('dateIn').value = today();
-      $('cap').textContent = '你的这一页 · 可以长按图片拷贝';
+      $('cap').textContent = '处理完成，可以再调光线和墨色';
       draw();
     }, 40);
   };
